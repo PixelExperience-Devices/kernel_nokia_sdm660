@@ -442,6 +442,12 @@ config CHARGER_BQ25890
 	help
 	  Say Y to enable support for the TI BQ25890 battery charger.
 
+config CHARGER_BQ25600_SLAVE
+	tristate "TI BQ25600 battery charger slave driver"
+	depends on I2C
+	help
+	  Say Y to enable support for the TI BQ25600 battery charger.
+
 config CHARGER_SMB347
 	tristate "Summit Microelectronics SMB347 Battery Charger"
 	depends on I2C
@@ -449,6 +455,18 @@ config CHARGER_SMB347
 	help
 	  Say Y to include support for Summit Microelectronics SMB347
 	  Battery Charger.
+
+config BATTERY_BQ28400
+	tristate "BQ28400 battery driver"
+	depends on I2C
+	default n
+	help
+	  Say Y here to enable support for batteries with BQ28400 (I2C) chips.
+	  The bq28400 Texas Instruments Inc device monitors the battery
+	  charging/discharging status via Rsens resistor, typically 10 mohm.
+	  It monitors the battery temperature via Thermistor.
+	  The device monitors the battery level (Relative-State-Of-Charge).
+	  The device is SBS compliant, providing battery info over I2C.
 
 config CHARGER_TPS65090
 	tristate "TPS65090 battery charger driver"
@@ -509,8 +527,22 @@ config AXP20X_POWER
 	  This driver provides support for the power supply features of
 	  AXP20x PMIC.
 
+config WIRELESS_CHARGER_STWLC33
+	bool "ST STWLC33 Wireless Charging control Driver"
+	depends on I2C
+	help
+	  ST STWLC33 wireless charging control driver
+
+config WIRELESS_CHARGER_P9221
+	bool "IDT P9221 Wireless Charging control Driver"
+	depends on I2C
+	help
+	  IDT P9221 wireless charging control driver
+
 source "drivers/power/reset/Kconfig"
+source "drivers/power/supply/Kconfig"
 
 endif # POWER_SUPPLY
 
 source "drivers/power/avs/Kconfig"
+source "drivers/power/qcom/Kconfig"

@@ -17,6 +17,10 @@ AFLAGS_system_certificates.o := -I$(srctree)
 quiet_cmd_extract_certs  = EXTRACT_CERTS   $(patsubst "%",%,$(2))
       cmd_extract_certs  = scripts/extract-cert $(2) $@ || ( rm $@; exit 1)
 
+ifeq ($(CONFIG_SYSTEM_TRUSTED_KEYS),"verity.x509.pem")
+SYSTEM_TRUSTED_KEYS_SRCPREFIX := $(srctree)/certs/
+endif
+
 targets += x509_certificate_list
 $(obj)/x509_certificate_list: scripts/extract-cert $(SYSTEM_TRUSTED_KEYS_SRCPREFIX)$(SYSTEM_TRUSTED_KEYS_FILENAME) FORCE
 	$(call if_changed,extract_certs,$(SYSTEM_TRUSTED_KEYS_SRCPREFIX)$(CONFIG_SYSTEM_TRUSTED_KEYS))
@@ -39,6 +43,10 @@ endif
 redirect_openssl	= 2>&1
 quiet_redirect_openssl	= 2>&1
 silent_redirect_openssl = 2>/dev/null
+
+# FIH, use fih module key {
+ifneq ($(CONFIG_MODULE_SIG_FIH),y)
+# FIH, use fih module key }
 
 # We do it this way rather than having a boolean option for enabling an
 # external private key, because 'make randconfig' might enable such a
@@ -82,6 +90,24 @@ $(obj)/x509.genkey:
 	@echo >>$@ "subjectKeyIdentifier=hash"
 	@echo >>$@ "authorityKeyIdentifier=keyid"
 endif
+
+# FIH, use fih module key {
+else
+
+$(obj)/signing_key.pem: $(obj)/x509.genkey
+	@echo "Use fih module sign key"
+	@pwd
+	@ls -l $(CONFIG_MODULE_SIG_FIH_KEY_PATH)/
+	@cp $(CONFIG_MODULE_SIG_FIH_KEY_PATH)/signing_key.pem $(obj)/signing_key.pem
+
+$(obj)/x509.genkey:
+	@echo "Use fih x509.genkey"
+	@pwd
+	@ls -l $(CONFIG_MODULE_SIG_FIH_KEY_PATH)/
+	@cp $(CONFIG_MODULE_SIG_FIH_KEY_PATH)/x509.genkey $(obj)/x509.genkey
+	
+endif
+# FIH, use fih module key }
 
 $(eval $(call config_filename,MODULE_SIG_KEY))
 
